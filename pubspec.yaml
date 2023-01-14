@@ -104,6 +104,13 @@ flutter:
   assets:
     - assets/logo/biblylogo.png
     - assets/images/whitebilby.png
+    - assets/images/cat64.png
+    - assets/images/bilby.jpg
+    - assets/images/cow.png
+    - assets/images/dog.png
+    - assets/images/NoAnimal.png
+    - assets/images/other.png
+    - assets/images/fox.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

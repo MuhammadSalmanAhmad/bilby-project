@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:save_the_bilby_fund/features/authentications/controllers/session_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:save_the_bilby_fund/features/authentications/screens/Category/category_screen.dart';
 
 import '../../../repository/authentication_repository/authentication_repository.dart';
 import '../../../utils/Dashboard.dart';
@@ -32,7 +33,7 @@ class LoginController extends GetxController {
     await auth.signInWithEmailAndPassword(email: email, password: password).then((value){
       SessionController().userid = value.user!.uid.toString();});
     // if(await User != null){
-      Get.offAll(() => const Dash());
+      Get.offAll(() => const CategoriesScreen());
     // }
 
     // try{

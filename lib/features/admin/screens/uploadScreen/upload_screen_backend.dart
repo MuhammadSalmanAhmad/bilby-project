@@ -10,6 +10,8 @@ import 'dart:io';
 class UploadProgressController extends GetxController {
   var imagesUploaded = 0.obs;
   var isUploading = false.obs;
+
+  static var fileName;
   void increment() => imagesUploaded++;
   var isDoneUploading = false.obs;
   var totalImagesToUpload = 0.obs;
