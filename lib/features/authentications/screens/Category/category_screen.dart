@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:save_the_bilby_fund/common_widgets/category_card.dart';
@@ -11,6 +11,8 @@ import 'package:save_the_bilby_fund/features/authentications/screens/Category/ca
 import 'package:save_the_bilby_fund/features/admin/screens/uploadScreen/upload_screen_backend.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import 'data.dart';
+
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
 
@@ -19,46 +21,21 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
+  final DatabaseReference imageref = FirebaseDatabase.instance.ref().child('images');
+  final storageref = FirebaseStorage.instance.ref('images/');
+
+  var imageurl = UploadProgressController.fileName;
+
   int count = 0;
 
-  // final storageref = FirebaseStorage.instance.ref('images/');
-  // var url;
-  // Future<String> download() async {
-  //   url = await storageref.child("1002513214710105619").getDownloadURL();
-  //   debugPrint(url);
-  //   return url.toString();
-  //   debugPrint(url.toString());
-  // }
+  List<Data> datalist = [];
 
-  List<String> imagekeys = [];
-  Future<String> get_urls() async {
-    final Mainimageref = FirebaseDatabase.instance.ref("images");
-    DatabaseEvent event = await Mainimageref.once();
-    Map<String, dynamic> imagesSnapshot =
-        Map<String, dynamic>.from(event.snapshot.value as Map);
-    //debugPrint(json.encode(imagesSnapshot));
-    // debugPrint("imagesSnapshot.values.toString()\n${imagesSnapshot.keys.toString()}");
-    // debugPrint(json.encode(imagesSnapshot));
 
-    imagekeys.add(imagesSnapshot.keys.toString());
-    debugPrint(imagekeys.toString());
-    return imagekeys.toString();
-  }
-
-  Future<String> get_image() async {
-    String image_key = await get_urls();
-    debugPrint(image_key);
-    DatabaseReference imageurlref =
-        FirebaseDatabase.instance.ref('images/${image_key}');
-    DatabaseEvent event = await imageurlref.child("imageURL").once();
-    var data = event.snapshot.value;
-    //debugPrint(data.toString());
-    return data.toString();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: customAppBar("Bilby", Icons.arrow_back),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -77,26 +54,37 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ),
                 ],
               ),
-              // Container(
-              //     height: 250,
-              //     child: FutureBuilder(
-              //         future: get_urls(),
-              //         builder: (context, snapshot) {
-              //           if (snapshot.connectionState ==
-              //               ConnectionState.waiting) {
-              //             return Text('waiting');
-              //           } else if (snapshot.hasData) {
-              //             return Image.network(snapshot.data!['imageURL']);
-              //           } else {
-              //             return Text('error');
-              //           }
-              //         })),
-              ElevatedButton(
-                  onPressed: () {
-                    //get_urls();
-                    get_image();
+
+              Container(
+                height: 250,
+
+
+                child: StreamBuilder(
+                  // stream: imageref.child("1762050672970235696").onValue,
+                  stream: imageref.onValue,
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (!snapshot.hasData) {
+                      return Text("No image to show");
+                    } else if (snapshot.hasData)
+                    {
+                      datalist.clear();
+                      var keys = snapshot.data.snapshot.value.keys;
+                      var values = snapshot.data.snapshot.value;
+                      for(var key in keys){
+                        Data data = new Data(
+                            values [key]["imageURL"]
+                        );
+                        datalist.add(data);
+                      }
+                      // Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
+                      return Container(
+                        child: Image.network(datalist[1].imgurl),
+                      );
+                    } else
+                      return Image.asset('assets/images/bilby.jpg');
                   },
-                  child: Text("get keys")),
+                ),
+              ),
               Text(
                 "Category",
                 style: TextStyle(
