@@ -8,6 +8,9 @@ import 'package:save_the_bilby_fund/features/authentications/screens/Category/ca
 class CategoryCard extends StatefulWidget {
   late final String category_name;
   late final String image_url;
+  int rewardpoints = 0;
+  int count = 1;
+  int ImageCategorized = 0;
   CategoryCard(
       {super.key, required this.category_name, required this.image_url});
 
@@ -25,11 +28,15 @@ class _CategoryCardState extends State<CategoryCard> {
   final DatabaseReference reference =
       FirebaseDatabase.instance.ref('Categorized_images');
 
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      
+      onTapDown: ((details) {
+        setState(() {
+          this.widget.rewardpoints = this.widget.rewardpoints++;
+          this.widget.ImageCategorized++;
+        });
+      }),
       splashColor: Color(0xff455A64),
       onTap: (() {
         if (this.widget.category_name == 'Bilby') {
@@ -40,7 +47,6 @@ class _CategoryCardState extends State<CategoryCard> {
           'Category  : ': this.widget.category_name,
           'Critical': isCritical,
           'Date Categorized': formater.format(now),
-          
         });
       }),
       child: Ink(
