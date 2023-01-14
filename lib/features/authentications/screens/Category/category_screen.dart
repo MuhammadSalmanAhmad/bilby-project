@@ -23,35 +23,36 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   // final storageref = FirebaseStorage.instance.ref('images/');
   // var url;
-  // Future<String> get_image() async {
+  // Future<String> download() async {
   //   url = await storageref.child("1002513214710105619").getDownloadURL();
   //   debugPrint(url);
   //   return url.toString();
   //   debugPrint(url.toString());
   // }
+
   List<String> imagekeys = [];
-  Future<List<String>> get_urls() async {
-    final Mainimageref =
-        FirebaseDatabase.instance.ref("images").limitToFirst(5);
+  Future<String> get_urls() async {
+    final Mainimageref = FirebaseDatabase.instance.ref("images");
     DatabaseEvent event = await Mainimageref.once();
     Map<String, dynamic> imagesSnapshot =
         Map<String, dynamic>.from(event.snapshot.value as Map);
     //debugPrint(json.encode(imagesSnapshot));
     // debugPrint("imagesSnapshot.values.toString()\n${imagesSnapshot.keys.toString()}");
     // debugPrint(json.encode(imagesSnapshot));
-    imagesSnapshot.entries
-        .forEach((e) => imagekeys.add(imagesSnapshot.keys.toString()));
+
+    imagekeys.add(imagesSnapshot.keys.toString());
     debugPrint(imagekeys.toString());
-    return imagekeys as List<String>;
+    return imagekeys.toString();
   }
 
   Future<String> get_image() async {
-    List<String> image_key = await get_urls();
+    String image_key = await get_urls();
+    debugPrint(image_key);
     DatabaseReference imageurlref =
         FirebaseDatabase.instance.ref('images/${image_key}');
     DatabaseEvent event = await imageurlref.child("imageURL").once();
     var data = event.snapshot.value;
-    debugPrint(data.toString());
+    //debugPrint(data.toString());
     return data.toString();
   }
 
@@ -92,6 +93,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               //         })),
               ElevatedButton(
                   onPressed: () {
+                    //get_urls();
                     get_image();
                   },
                   child: Text("get keys")),

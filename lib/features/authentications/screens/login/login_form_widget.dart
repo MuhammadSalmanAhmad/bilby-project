@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:save_the_bilby_fund/constants/colors.dart';
 import 'package:save_the_bilby_fund/constants/sizes.dart';
 import 'package:save_the_bilby_fund/constants/text_strings.dart';
+import 'package:save_the_bilby_fund/features/authentications/screens/Category/category_screen.dart';
 
 import '../../controllers/login_controller.dart';
 import '../forgetPassword/forget_password.dart';
@@ -96,7 +97,7 @@ class _LoginFormState extends State<LoginForm> {
                               borderRadius: BorderRadius.circular(20),
                               side: BorderSide(color: Colors.transparent)))),
                   onPressed: () {
-                    Get.to(() => const ForgetPassword());
+                    Get.to(() => const CategoriesScreen());
                   },
                   child: const Text(
                     tForgetPassword,

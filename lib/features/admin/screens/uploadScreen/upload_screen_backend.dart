@@ -16,10 +16,13 @@ class UploadProgressController extends GetxController {
   var isDoneUploading = false.obs;
   var totalImagesToUpload = 0.obs;
 }
+
 final uploadProgressController = Get.put(UploadProgressController());
 final ImagePicker imagePicker = ImagePicker();
 List<XFile>? imageFiles = [];
 final imagesDatabaseRef = FirebaseDatabase.instance.ref().child("images");
+final uncategorized_image_Ref =
+    FirebaseDatabase.instance.ref('Uncategorized images');
 final datastoreRef = FirebaseStorage.instance.ref();
 Future SelectAndUploadImages() async {
   final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
@@ -29,10 +32,16 @@ Future SelectAndUploadImages() async {
     uploadProgressController.totalImagesToUpload.value = selectedImages.length;
     for (var image in selectedImages) {
       uploadProgressController.isUploading.value = true;
-      File imageFileToUpload = await File(image.path); // selectedImages as Xfile
-      String fileName = await basename(image.path); //getting file name from the path
-      fileName = fileName.substring(12, fileName.length - 4); //removing "image_picker" from start and ".jpg" from the end of file name
-      fileName=fileName.replaceAll(RegExp('[^A-Za-z0-9]'), '');// removing special characters expect alphabets and numbers
+      File imageFileToUpload =
+          await File(image.path); // selectedImages as Xfile
+      String fileName =
+          await basename(image.path); //getting file name from the path
+      fileName = fileName.substring(
+          12,
+          fileName.length -
+              4); //removing "image_picker" from start and ".jpg" from the end of file name
+      fileName = fileName.replaceAll(RegExp('[^A-Za-z0-9]'),
+          ''); // removing special characters expect alphabets and numbers
       debugPrint("FILE NAME IS : ${fileName}");
       try {
         await datastoreRef
@@ -48,11 +57,15 @@ Future SelectAndUploadImages() async {
             debugPrint("DOWNLOAD URL: ${imageURL}");
             await imagesDatabaseRef.child("${fileName}").set({
               "imageName": "${fileName}",
-              "dateUploaded": "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
+              "dateUploaded":
+                  "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
               "imageURL": "${imageURL}",
-              "isCategorized":"false",
-              "categoryId":"unknown",
+              "isCategorized": "false",
+              "categoryId": "unknown",
             });
+            await uncategorized_image_Ref
+                .child(DateTime.now().microsecond.toString())
+                .set({'ImageName': '$fileName'});
           }).whenComplete(() => () {
                     debugPrint(
                         "Image Data saved to Realtime Database: ${fileName}");
