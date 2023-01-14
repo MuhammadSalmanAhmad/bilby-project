@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -18,38 +19,40 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  var filename = UploadProgressController.fileName;
-  Future<List> get_urls() async {
-     DatabaseReference ref = FirebaseDatabase.instance().getReference().child("images");
-    ref.addListenerForSingleValueEvent(
-            new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    //Get map of users in datasnapshot
-                    collectPhoneNumbers((Map<String,Object>) dataSnapshot.getValue());
-                }
+  int count = 0;
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    //handle databaseError
-                }
-            });
-    // final DatabaseReference main_image_reference =
-    //     FirebaseDatabase.instance.ref('images');
-        
-    // DatabaseEvent event = await main_image_reference.once();
-    // List<String> images_names = event.snapshot as List<String>;
-    // debugPrint(images_names.toString());
-    // return event.snapshot as List<String>;
+  // final storageref = FirebaseStorage.instance.ref('images/');
+  // var url;
+  // Future<String> get_image() async {
+  //   url = await storageref.child("1002513214710105619").getDownloadURL();
+  //   debugPrint(url);
+  //   return url.toString();
+  //   debugPrint(url.toString());
+  // }
+  List<String> imagekeys = [];
+  Future<List<String>> get_urls() async {
+    final Mainimageref =
+        FirebaseDatabase.instance.ref("images").limitToFirst(5);
+    DatabaseEvent event = await Mainimageref.once();
+    Map<String, dynamic> imagesSnapshot =
+        Map<String, dynamic>.from(event.snapshot.value as Map);
+    //debugPrint(json.encode(imagesSnapshot));
+    // debugPrint("imagesSnapshot.values.toString()\n${imagesSnapshot.keys.toString()}");
+    // debugPrint(json.encode(imagesSnapshot));
+    imagesSnapshot.entries
+        .forEach((e) => imagekeys.add(imagesSnapshot.keys.toString()));
+    debugPrint(imagekeys.toString());
+    return imagekeys as List<String>;
   }
 
-  final storageref = FirebaseStorage.instance.ref('images/');
-  var url;
   Future<String> get_image() async {
-    url = await storageref.child("1002513214710105619").getDownloadURL();
-    debugPrint(url);
-    return url.toString();
-    debugPrint(url.toString());
+    List<String> image_key = await get_urls();
+    DatabaseReference imageurlref =
+        FirebaseDatabase.instance.ref('images/${image_key}');
+    DatabaseEvent event = await imageurlref.child("imageURL").once();
+    var data = event.snapshot.value;
+    debugPrint(data.toString());
+    return data.toString();
   }
 
   @override
@@ -73,9 +76,25 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ),
                 ],
               ),
-              ElevatedButton(onPressed: () {
-                get_urls();
-              }, child: Text("GET IMAGES LIST")),
+              // Container(
+              //     height: 250,
+              //     child: FutureBuilder(
+              //         future: get_urls(),
+              //         builder: (context, snapshot) {
+              //           if (snapshot.connectionState ==
+              //               ConnectionState.waiting) {
+              //             return Text('waiting');
+              //           } else if (snapshot.hasData) {
+              //             return Image.network(snapshot.data!['imageURL']);
+              //           } else {
+              //             return Text('error');
+              //           }
+              //         })),
+              ElevatedButton(
+                  onPressed: () {
+                    get_image();
+                  },
+                  child: Text("get keys")),
               Text(
                 "Category",
                 style: TextStyle(
