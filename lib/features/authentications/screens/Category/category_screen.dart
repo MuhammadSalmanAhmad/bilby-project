@@ -21,7 +21,8 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  final DatabaseReference imageref = FirebaseDatabase.instance.ref().child('images');
+  final DatabaseReference imageref =
+      FirebaseDatabase.instance.ref().child('images');
   final storageref = FirebaseStorage.instance.ref('images/');
 
   var imageurl = UploadProgressController.fileName;
@@ -29,8 +30,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   int count = 0;
 
   List<Data> datalist = [];
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,40 +44,39 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    "Skip",
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: tPrimaryColor,
-                        fontWeight: FontWeight.bold),
-                  ),
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          count++;
+                        });
+                      },
+                      child: Text('skip',
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: tPrimaryColor,
+                              fontWeight: FontWeight.bold)))
                 ],
               ),
-
               Container(
                 height: 250,
-
-
                 child: StreamBuilder(
                   // stream: imageref.child("1762050672970235696").onValue,
                   stream: imageref.onValue,
                   builder: (context, AsyncSnapshot snapshot) {
                     if (!snapshot.hasData) {
                       return Text("No image to show");
-                    } else if (snapshot.hasData)
-                    {
+                    } else if (snapshot.hasData) {
                       datalist.clear();
                       var keys = snapshot.data.snapshot.value.keys;
                       var values = snapshot.data.snapshot.value;
-                      for(var key in keys){
-                        Data data = new Data(
-                            values [key]["imageURL"]
-                        );
+                      for (var key in keys) {
+                        Data data = new Data(values[key]["imageURL"]);
                         datalist.add(data);
                       }
                       // Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
                       return Container(
-                        child: Image.network(datalist[1].imgurl),
+                         
+                        child: Image.network(datalist[count].imgurl,fit: BoxFit.cover,),
                       );
                     } else
                       return Image.asset('assets/images/bilby.jpg');
