@@ -18,10 +18,39 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  final DatabaseReference imageref = FirebaseDatabase.instance.ref('images');
-  final storageref = FirebaseStorage.instance.ref('images/');
+  var filename = UploadProgressController.fileName;
+  Future<List> get_urls() async {
+     DatabaseReference ref = FirebaseDatabase.instance().getReference().child("images");
+    ref.addListenerForSingleValueEvent(
+            new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    //Get map of users in datasnapshot
+                    collectPhoneNumbers((Map<String,Object>) dataSnapshot.getValue());
+                }
 
-  var imageurl = UploadProgressController.fileName;
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    //handle databaseError
+                }
+            });
+    // final DatabaseReference main_image_reference =
+    //     FirebaseDatabase.instance.ref('images');
+        
+    // DatabaseEvent event = await main_image_reference.once();
+    // List<String> images_names = event.snapshot as List<String>;
+    // debugPrint(images_names.toString());
+    // return event.snapshot as List<String>;
+  }
+
+  final storageref = FirebaseStorage.instance.ref('images/');
+  var url;
+  Future<String> get_image() async {
+    url = await storageref.child("1002513214710105619").getDownloadURL();
+    debugPrint(url);
+    return url.toString();
+    debugPrint(url.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,21 +73,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ),
                 ],
               ),
-              Container(
-                height: 250,
-                child: StreamBuilder(
-                  stream: imageref.child(imageurl.toString()).onValue,
-                  builder: (context, AsyncSnapshot snapshot) {
-                    if (!snapshot.hasData) {
-                      return Text("No image to show");
-                    } else if (snapshot.hasData) {
-                      Map<dynamic, dynamic> map = snapshot.data;
-                      return Image.network(map['imageURL']);
-                    } else
-                      return Image.asset('assets/images/bilby.jpg');
-                  },
-                ),
-              ),
+              ElevatedButton(onPressed: () {
+                get_urls();
+              }, child: Text("GET IMAGES LIST")),
               Text(
                 "Category",
                 style: TextStyle(
