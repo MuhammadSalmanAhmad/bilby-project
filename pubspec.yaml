@@ -111,6 +111,9 @@ flutter:
     - assets/images/NoAnimal.png
     - assets/images/other.png
     - assets/images/fox.png
+    - assets/images/pig.png
+    - assets/images/BilbyIcon.png
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

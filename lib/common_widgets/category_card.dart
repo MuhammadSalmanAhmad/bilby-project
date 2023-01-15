@@ -4,6 +4,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:save_the_bilby_fund/features/authentications/screens/Category/category_screen.dart';
+import 'package:http/http.dart'as http;
+import 'dart:convert';
 
 class CategoryCard extends StatefulWidget {
   late final String category_name;
@@ -18,6 +20,9 @@ class CategoryCard extends StatefulWidget {
   State<CategoryCard> createState() => _CategoryCardState();
 }
 
+//Email service 
+
+
 class _CategoryCardState extends State<CategoryCard> {
   bool isCritical = false;
 
@@ -27,6 +32,55 @@ class _CategoryCardState extends State<CategoryCard> {
   //REFERENCE TO USERS
   final DatabaseReference reference =
       FirebaseDatabase.instance.ref('Categorized_images');
+  
+  //EMAIL SERVICE FUNCTION
+
+   Future sendCriticalEmail(String ImageURL, String UserEmail) async {
+            String message =
+                "Image URL= ${ImageURL}\nDate of Categorization= ${formater.format(now)}";
+            final url =
+                Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
+            const serviceId = "service_zlcbq3h";
+            const templateId = "template_ars5g2u";
+            const userId = "3OstZ3o-MZkiyPCwd";
+
+            final response = await http.post(url,
+                headers: {'Content-Type': 'application/json'},
+                body: json.encode({
+                  "service_id": serviceId,
+                  "template_id": templateId,
+                  "user_id": userId,
+                  "template_params": {
+                    "name": "${UserEmail}",
+                    "subject": "Bilby Detected",
+                    "message":
+                        "Critical Image URL= ${ImageURL}\nDate of Detection= ${formater.format(now)}",
+                    "user_email": UserEmail.toString(),
+                  }
+                }));
+
+            if (response.statusCode == 200) {
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(bottom: 100.0),
+                content: Text(
+                  "Email Sent",
+                  style: TextStyle(color: Colors.green),
+                ),
+              );
+            } else {
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(bottom: 100.0),
+                content: Text(response.body),
+              );
+            }
+
+            debugPrint("RESPONSE CODE: ${response.statusCode}");
+            debugPrint("RESPONSE TEXT:${response.body}");
+            return response.statusCode;
+          }
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +95,7 @@ class _CategoryCardState extends State<CategoryCard> {
       onTap: (() {
         if (this.widget.category_name == 'Bilby') {
           isCritical = true;
+         
         }
 
         reference.child(DateTime.now().microsecondsSinceEpoch.toString()).set({

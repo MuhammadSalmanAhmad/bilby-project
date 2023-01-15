@@ -19,8 +19,11 @@ class CategoryList extends StatelessWidget {
           CategoryCard(category_name: 'Cat', image_url:cat ),
           CategoryCard(category_name: 'Dog', image_url:dog ),
           CategoryCard(category_name: 'Fox', image_url:fox ),
+          CategoryCard(category_name: 'Bilby', image_url: bilby),
+          CategoryCard(category_name: 'Pig', image_url: pig),
           CategoryCard(category_name: 'Cattle', image_url:cattle ),
-          CategoryCard(category_name: 'others', image_url: NoAnimal)
+          CategoryCard(category_name: 'others', image_url: NoAnimal),
+         
         ],
       ),
     );

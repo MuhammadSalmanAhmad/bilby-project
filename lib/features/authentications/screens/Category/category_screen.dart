@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +22,21 @@ class CategoriesScreen extends StatefulWidget {
 class _CategoriesScreenState extends State<CategoriesScreen> {
   final DatabaseReference imageref =
       FirebaseDatabase.instance.ref().child('images');
-  final storageref = FirebaseStorage.instance.ref('images/');
 
-  var imageurl = UploadProgressController.fileName;
+  void Remove() async {
+    List<String> imagekeys = [];
+    final Mainimageref = FirebaseDatabase.instance.ref("images");
+    DatabaseEvent event = await Mainimageref.once();
+    Map<String, dynamic> children =
+        Map<String, dynamic>.from(event.snapshot.value as Map);
+
+    children.entries.forEach((e) => imagekeys.add(e.key.toString()));
+    debugPrint(imagekeys.toString());
+
+    final DatabaseReference ref =
+        FirebaseDatabase.instance.ref().child('images/${imagekeys[0]}');
+    ref.remove();
+  }
 
   int count = 0;
 
@@ -46,9 +57,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 children: [
                   TextButton(
                       onPressed: () {
-                        setState(() {
-                          count++;
-                        });
+                        // setState(() {
+                        //   count++;
+                        // });
+                        //Remove();
                       },
                       child: Text('skip',
                           style: TextStyle(
@@ -75,8 +87,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       }
                       // Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
                       return Container(
-                         
-                        child: Image.network(datalist[count].imgurl,fit: BoxFit.cover,),
+                        child: Image.network(
+                          datalist[count].imgurl,
+                          fit: BoxFit.cover,
+                        ),
                       );
                     } else
                       return Image.asset('assets/images/bilby.jpg');
@@ -102,6 +116,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ),
       ),
+      
     );
+    
   }
 }
