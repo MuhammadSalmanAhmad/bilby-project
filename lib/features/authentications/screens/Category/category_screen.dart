@@ -1,21 +1,37 @@
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:save_the_bilby_fund/features/authentications/screens/custom_appbar.dart';
 import 'package:save_the_bilby_fund/constants/colors.dart';
 import 'package:save_the_bilby_fund/features/authentications/screens/Category/cards_grid_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import '../../controllers/session_controller.dart';
+import '../SettingsSecreen/User_Profile.dart';
+import '../contachForm/contact_form.dart';
+import '../login/login_screen.dart';
 import 'data.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
+
 
   @override
   State<CategoriesScreen> createState() => _CategoriesScreenState();
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
+
+
+  final _pageOptions = [
+    CategoriesScreen(),
+    ContactForm(),
+    ProfileScreen(),
+  ];
+
   final DatabaseReference imageref =
       FirebaseDatabase.instance.ref().child('images');
 
@@ -27,7 +43,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         Map<String, dynamic>.from(event.snapshot.value as Map);
 
     children.entries.forEach((e) => imagekeys.add(e.key.toString()));
-    debugPrint(imagekeys.toString());
     for (int i = 0; i < 4; i++) {
       final DatabaseReference ref =
           FirebaseDatabase.instance.ref().child('images/${imagekeys[i]}');
@@ -43,6 +58,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       appBar: customAppBar("Bilby", Icons.arrow_back),
       body: SingleChildScrollView(
         child: Padding(
@@ -60,6 +76,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         });
                         if (count == 4) {
                           Remove();
+                          count=0;
                           showDialog(
                               context: context,
                               builder: (context) {
@@ -126,17 +143,16 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               Container(
                 height: 250,
                 child: StreamBuilder(
-                  // stream: imageref.child("1762050672970235696").onValue,
                   stream: imageref.onValue,
                   builder: (context, AsyncSnapshot snapshot) {
                     if (!snapshot.hasData) {
-                      return Text("No image to show");
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.connectionState ==
                         ConnectionState.waiting) {
                       return Container(
                           height: MediaQuery.of(context).size.height / 1.25,
                           width: MediaQuery.of(context).size.width / 1.25,
-                          child: CircularProgressIndicator());
+                          child: Center(child: CircularProgressIndicator()));
                     } else if (snapshot.hasData) {
                       datalist.clear();
                       var keys = snapshot.data.snapshot.value.keys;

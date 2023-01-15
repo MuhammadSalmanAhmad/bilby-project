@@ -11,6 +11,7 @@ import 'package:save_the_bilby_fund/features/authentications/screens/Category/ca
 
 import '../../../repository/authentication_repository/authentication_repository.dart';
 import '../../../utils/Dashboard.dart';
+import '../screens/Category/navigation.dart';
 import '../screens/login/login_screen.dart';
 
 class LoginController extends GetxController {
@@ -33,7 +34,7 @@ class LoginController extends GetxController {
     await auth.signInWithEmailAndPassword(email: email, password: password).then((value){
       SessionController().userid = value.user!.uid.toString();});
     // if(await User != null){
-      Get.offAll(() => const CategoriesScreen());
+      Get.offAll(() =>  NavBar());
     // }
 
     // try{

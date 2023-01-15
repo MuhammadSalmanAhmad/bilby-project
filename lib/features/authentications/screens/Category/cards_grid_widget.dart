@@ -9,7 +9,7 @@ class CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 500,
+      height: 400,
       child: GridView.count(
         crossAxisCount: 2,
         primary: false,
@@ -17,10 +17,10 @@ class CategoryList extends StatelessWidget {
         mainAxisSpacing: 10,
         children: [
           CategoryCard(category_name: 'No Animal', image_url: other,URL_Image: image_url_,),
+          CategoryCard(category_name: 'Bilby', image_url: bilby,URL_Image: image_url_,),
           CategoryCard(category_name: 'Cat', image_url: cat,URL_Image: image_url_,),
           CategoryCard(category_name: 'Dog', image_url: dog,URL_Image: image_url_,),
           CategoryCard(category_name: 'Fox', image_url: fox,URL_Image: image_url_,),
-          CategoryCard(category_name: 'Bilby', image_url: bilby,URL_Image: image_url_,),
           CategoryCard(category_name: 'Pig', image_url: pig,URL_Image: image_url_,),
           CategoryCard(category_name: 'Cattle', image_url: cattle,URL_Image: image_url_,),
           CategoryCard(category_name: 'others', image_url: NoAnimal,URL_Image: image_url_,),
