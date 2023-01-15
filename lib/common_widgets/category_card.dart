@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:save_the_bilby_fund/constants/colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:save_the_bilby_fund/features/authentications/screens/Category/category_screen.dart';
+import 'package:http/http.dart'as http;
+import 'dart:convert';
+
 
 import '../features/authentications/controllers/session_controller.dart';
 
@@ -22,7 +23,7 @@ class CategoryCard extends StatefulWidget {
 class _CategoryCardState extends State<CategoryCard> {
 
   final DatabaseReference ref = FirebaseDatabase.instance.ref('Users');
-  //
+
   // int ImageCategorized = 1;
   // int rewardpoints = 1;
 
@@ -36,6 +37,51 @@ class _CategoryCardState extends State<CategoryCard> {
   final DatabaseReference reference =
       FirebaseDatabase.instance.ref('Categorized_images');
 
+  Future sendCriticalEmail(String ImageURL, String UserEmail) async {
+    String message =
+        "Image URL= ${ImageURL}\nDate of Categorization= ${formater.format(now)}";
+    final url =
+    Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
+    const serviceId = "service_zlcbq3h";
+    const templateId = "template_ars5g2u";
+    const userId = "3OstZ3o-MZkiyPCwd";
+
+    final response = await http.post(url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          "service_id": serviceId,
+          "template_id": templateId,
+          "user_id": userId,
+          "template_params": {
+            "name": "${UserEmail}",
+            "subject": "Bilby Detected",
+            "message":
+            "Critical Image URL= ${ImageURL}\nDate of Detection= ${formater.format(now)}",
+            "user_email": UserEmail.toString(),
+          }
+        }));
+
+    if (response.statusCode == 200) {
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(bottom: 100.0),
+        content: Text(
+          "Email Sent",
+          style: TextStyle(color: Colors.green),
+        ),
+      );
+    } else {
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(bottom: 100.0),
+        content: Text(response.body),
+      );
+    }
+
+    debugPrint("RESPONSE CODE: ${response.statusCode}");
+    debugPrint("RESPONSE TEXT:${response.body}");
+    return response.statusCode;
+  }
 
 
   @override
@@ -48,6 +94,7 @@ class _CategoryCardState extends State<CategoryCard> {
 
             int rewardP = map['RewardPoints'];
             int Cateimg = map['ImageCategorized'];
+            String mail = map['email'];
 
             return InkWell(
               onTapDown: ((details) {
@@ -109,7 +156,8 @@ class _CategoryCardState extends State<CategoryCard> {
 
           }
           else if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()));}
+            return Center(child: Text(snapshot.error.toString()));
+          }
 
           return Center(child: CircularProgressIndicator());
         }

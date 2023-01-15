@@ -38,6 +38,21 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   List<Data> datalist = [];
 
+  void Remove() async {
+    List<String> imagekeys = [];
+    final Mainimageref = FirebaseDatabase.instance.ref("images");
+    DatabaseEvent event = await Mainimageref.once();
+    Map<String, dynamic> children =
+    Map<String, dynamic>.from(event.snapshot.value as Map);
+
+    children.entries.forEach((e) => imagekeys.add(e.key.toString()));
+    debugPrint(imagekeys.toString());
+
+    final DatabaseReference ref =
+    FirebaseDatabase.instance.ref().child('images/${imagekeys[0]}');
+    ref.remove();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +72,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               print(index);
               if(index == 0){
                 Get.to(() => const CategoriesScreen());
-
               }
               else if(index == 1){
                 Get.to(() => const ContactForm());
@@ -65,6 +79,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               }
               else if(index == 2){
                 Get.to(() => const ProfileScreen());
+
               }
               else if(index == 3){
                 FirebaseAuth auth = FirebaseAuth.instance;
@@ -89,6 +104,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               GButton(
                 icon: Icons.person,
                 text: "Profile",
+
               ),
               GButton(
                 icon: Icons.logout,
@@ -131,7 +147,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   stream: imageref.onValue,
                   builder: (context, AsyncSnapshot snapshot) {
                     if (!snapshot.hasData) {
-                      return Text("No image to show");
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasData) {
                       datalist.clear();
                       var keys = snapshot.data.snapshot.value.keys;
@@ -145,8 +161,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                          
                         child: Image.network(datalist[count].imgurl,fit: BoxFit.cover,),
                       );
-                    } else
-                      return Image.asset('assets/images/bilby.jpg');
+                    }
+                    // else{
+                    //   return Image.asset('assets/images/bilby.jpg');
+                    //
+                    //
+                    // }
+                    return Center(child: CircularProgressIndicator());
                   },
                 ),
               ),

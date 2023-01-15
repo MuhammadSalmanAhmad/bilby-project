@@ -27,9 +27,9 @@ final messageController=TextEditingController();
 Future sendEmail() async{
 
   final url=Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
-  const serviceId="service_sb7bhog";
-  const templateId="template_pmvkhhi";
-  const userId="1ao6Q1MqN26uuay03";
+  const serviceId = "service_zlcbq3h";
+  const templateId = "template_ars5g2u";
+  const userId = "3OstZ3o-MZkiyPCwd";
   // const privatekey= "ER6z2jXuigWEFkSaevqUi";
 
   final response=await http.post(url,
