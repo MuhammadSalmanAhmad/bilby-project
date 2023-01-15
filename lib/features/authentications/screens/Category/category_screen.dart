@@ -1,13 +1,9 @@
 import 'dart:ui';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:save_the_bilby_fund/common_widgets/category_card.dart';
-import 'package:save_the_bilby_fund/constants/image_strings.dart';
 import 'package:save_the_bilby_fund/features/authentications/screens/custom_appbar.dart';
 import 'package:save_the_bilby_fund/constants/colors.dart';
 import 'package:save_the_bilby_fund/features/authentications/screens/Category/cards_grid_widget.dart';
-import 'package:save_the_bilby_fund/features/admin/screens/uploadScreen/upload_screen_backend.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'data.dart';
@@ -32,15 +28,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
     children.entries.forEach((e) => imagekeys.add(e.key.toString()));
     debugPrint(imagekeys.toString());
-
-    final DatabaseReference ref =
-        FirebaseDatabase.instance.ref().child('images/${imagekeys[0]}');
-    ref.remove();
+    for (int i = 0; i < 4; i++) {
+      final DatabaseReference ref =
+          FirebaseDatabase.instance.ref().child('images/${imagekeys[i]}');
+      ref.remove();
+    }
   }
 
   int count = 0;
 
   List<Data> datalist = [];
+  late String ImageURL = "";
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +55,68 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 children: [
                   TextButton(
                       onPressed: () {
-                        // setState(() {
-                        //   count++;
-                        // });
+                        setState(() {
+                          count++;
+                        });
+                        if (count == 4) {
+                          Remove();
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return Container(
+                                  height: 300,
+                                  child: AlertDialog(
+                                    backgroundColor: Color(0xff455A64),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20.0))),
+                                    content: Container(
+                                      height: 300,
+                                      color: Color(0xff455A64),
+                                      child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Dear user you had reached your maximum limit of categorizing four images!",
+                                               style: TextStyle(
+                                                  color: Colors.white,fontSize: 20),
+                                            ),
+                                            Text(
+                                              "Do you want to continue categorize more images or quit!",
+                                              style: TextStyle(
+                                                  color: Colors.white,fontSize: 20),
+                                            )
+                                          ]),
+                                    ),
+                                    actions: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(AlertDialog);
+                                            },
+                                            child: Text("Continue ",style: TextStyle(fontSize: 20),),
+                                          ),
+                                          TextButton(
+                                              onPressed: () {
+                                                SystemNavigator.pop();
+                                              },
+                                              child: Text("Quit",style: TextStyle(fontSize: 20),))
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                );
+                              });
+                        }
                         //Remove();
                       },
-                      child: Text('skip',
+                      child: Text('Next',
                           style: TextStyle(
                               fontSize: 20,
                               color: tPrimaryColor,
@@ -77,6 +131,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   builder: (context, AsyncSnapshot snapshot) {
                     if (!snapshot.hasData) {
                       return Text("No image to show");
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Container(
+                          height: MediaQuery.of(context).size.height / 1.25,
+                          width: MediaQuery.of(context).size.width / 1.25,
+                          child: CircularProgressIndicator());
                     } else if (snapshot.hasData) {
                       datalist.clear();
                       var keys = snapshot.data.snapshot.value.keys;
@@ -85,12 +145,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         Data data = new Data(values[key]["imageURL"]);
                         datalist.add(data);
                       }
+                      ImageURL = datalist[count].imgurl;
                       // Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
-                      return Container(
-                        child: Image.network(
-                          datalist[count].imgurl,
-                          fit: BoxFit.cover,
-                        ),
+                      return Image.network(
+                        datalist[count].imgurl,
+                        fit: BoxFit.cover,
                       );
                     } else
                       return Image.asset('assets/images/bilby.jpg');
@@ -111,13 +170,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   fontSize: 20,
                 ),
               ),
-              CategoryList(),
+              CategoryList(
+                image_url_: ImageURL,
+              ),
             ],
           ),
         ),
       ),
-      
     );
-    
   }
 }
